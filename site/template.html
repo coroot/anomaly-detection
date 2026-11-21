@@ -629,6 +629,14 @@ function cusumDoc(k, h) {
     why: k === 0.5 ? "CUSUM, Page 1954, is the classic sequential change detector. It is built to catch a small shift that persists: each sample contributes a little, and the sum crosses the threshold once enough evidence has accumulated. k and h are the textbook values for a shift of one standard deviation." : "Same procedure with a much larger allowance and a much higher threshold, so only large deviations count and they have to persist for a long time before the sum reaches h." };
 }
 function modelDoc(rs) {
+  if (rs === "timestral_28m_q99_30m") {
+    return {
+      chart: exampleChart(winVals("s16", 100), [{ type: "region", a: 0, b: 30, fill: BASE, label: "forecast context" }, { type: "region", a: 59, b: 60, fill: REC, label: "evaluated minute" }]),
+      caption: "At minute 100, observations from minutes 40–70 supply the forecast for 70–100.",
+      steps: ["Forecast 120 samples from the first 120 observations.", "Compare the last minute with the final four forecast bounds. Skip missing samples. An empty context or target minute gives no signal.", "Apply the selected For setting to the minute-by-minute decisions."],
+      why: "Forecast deviations can reveal unusual latency. Earlier spikes can also widen the forecast bounds and hide a later incident."
+    };
+  }
   const r = R[rs], jev = r.api === "systemone", w = winVals("s16", 100), perMin = [];
   for (let i = 0; i < w.length; i += PPM) { const c = num(w.slice(i, i + PPM)); perMin.push(c.length ? Math.round(Math.max(...c)) : null); }
   const text = perMin.map(v => v == null ? "null" : v).join(",");
