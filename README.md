@@ -93,6 +93,20 @@ Models never miss a page but keep saying page for minutes after a spike has reco
 them. Rules with a 5 min lookback (ratio_2x) fire for 5 minutes after a 2 min spike for the same reason.
 Tuned thresholds (tev1_4b_tuned at 0.72, nimble_9b_tuned at 0.94) were chosen on this dataset.
 
+## Timestral-28M forecast baseline
+
+Each minute, Timestral uses the first 30 minutes of the trailing hour to forecast the next 30 on CPU.
+It flags the latest minute if every observed latency sample exceeds its own forecast 99th percentile
+(four samples when complete). An empty context or target minute gives no signal.
+
+With the shared three-minute hold, the baseline scores **27/31**, with zero false pages and four missed
+incidents. The model size, window split and decision rule were selected after inspecting these scenarios.
+
+```sh
+.venv/bin/python -m pip install -r requirements-timestral.txt
+.venv/bin/python run_timestral.py
+```
+
 ## Hosting
 
 The site is the single file `site/index.html`, built by `build_site.py` and committed. GitHub Pages deploys the `site` folder from `main` through `.github/workflows/pages.yml`, with the custom domain `anomaly-detection.coroot.com`.
